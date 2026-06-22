@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Henry Solberg — Synth-driven music for sci-fi worlds</title>
+<meta name="description" content="Original synth-driven scores, loops, and atmospheres for games, film, and tabletop. Available for sync licensing and custom work." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --void:#05060b;
+    --deepspace:#0a0f1e;
+    --nebula:#141c34;
+    --line:#222c4a;
+    --ice:#cad5f1;
+    --dim:#727d9e;
+    --signal:#76e0c9;
+    --signal-soft:rgba(118,224,201,.16);
+    --amber:#ecbb88;
+    --amber-soft:rgba(236,187,136,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--void);
+    color:var(--ice);
+    font-family:"Space Grotesk",system-ui,sans-serif;
+    font-weight:400;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+    min-height:100vh;
+  }
+  /* deep-space depth + one distant warm glow */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;
+    background:
+      radial-gradient(1200px 800px at 78% -10%, rgba(236,187,136,.06), transparent 60%),
+      radial-gradient(1000px 900px at 12% 18%, rgba(40,58,110,.30), transparent 55%),
+      radial-gradient(1400px 1100px at 50% 120%, rgba(20,28,52,.55), transparent 60%),
+      linear-gradient(180deg,#05060b 0%,#070a15 50%,#05060b 100%);
+  }
+  #stars{position:fixed;inset:0;z-index:-1;pointer-events:none}
+  .layer{position:absolute;inset:0}
+  .s1{animation:drift 240s linear infinite}
+  .s2{animation:drift 400s linear infinite}
+  .s3{animation:drift 600s linear infinite}
+  @keyframes drift{from{transform:translateY(0)}to{transform:translateY(-700px)}}
+
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px}
+
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--signal);
+  }
+
+  /* ---------- hero ---------- */
+  header{padding:128px 0 96px}
+  header .eyebrow{display:block;color:var(--dim);margin-bottom:30px}
+  h1{
+    font-weight:500;
+    font-size:clamp(2.6rem,7vw,4.7rem);
+    line-height:1.02;
+    letter-spacing:-.02em;
+    max-width:14ch;
+  }
+  h1 .glow{color:#fff;text-shadow:0 0 38px rgba(118,224,201,.35)}
+  .lede{
+    margin-top:30px;max-width:48ch;
+    font-size:clamp(1.05rem,2.1vw,1.28rem);
+    color:var(--dim);font-weight:400;
+  }
+  .lede b{color:var(--ice);font-weight:500}
+
+  /* ---------- section frame ---------- */
+  section{padding:54px 0;border-top:1px solid var(--line)}
+  .seclabel{display:flex;align-items:baseline;gap:16px;margin-bottom:38px}
+  .seclabel .num{font-family:"Space Mono",monospace;color:var(--dim);font-size:.72rem;letter-spacing:.2em}
+  .seclabel h2{font-size:1.05rem;font-weight:500;letter-spacing:.04em;color:var(--ice)}
+
+  /* ---------- players ---------- */
+  .track{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;gap:22px;
+    padding:20px 22px;margin-bottom:14px;
+    background:linear-gradient(180deg,rgba(20,28,52,.42),rgba(10,15,30,.42));
+    border:1px solid var(--line);border-radius:14px;
+    transition:border-color .35s,background .35s;
+  }
+  .track:hover{border-color:#33406a}
+  .track.playing{border-color:var(--signal);background:linear-gradient(180deg,rgba(118,224,201,.07),rgba(10,15,30,.5))}
+
+  .beacon{
+    width:48px;height:48px;flex:none;border-radius:50%;
+    border:1px solid var(--signal);background:transparent;
+    color:var(--signal);cursor:pointer;display:grid;place-items:center;
+    transition:background .3s,transform .15s;position:relative;
+  }
+  .beacon svg{width:16px;height:16px;display:block}
+  .beacon .pause-i{display:none}
+  .track.playing .beacon{background:var(--signal-soft)}
+  .track.playing .beacon .play-i{display:none}
+  .track.playing .beacon .pause-i{display:block}
+  .track.playing .beacon::after{
+    content:"";position:absolute;inset:-1px;border-radius:50%;
+    border:1px solid var(--signal);animation:ping 2.4s ease-out infinite;
+  }
+  @keyframes ping{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+  .beacon:active{transform:scale(.93)}
+
+  .track-meta{min-width:0}
+  .track-meta .eyebrow{display:block;margin-bottom:5px}
+  .track-title{font-size:1.18rem;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .scrub{grid-column:1 / -1;margin-top:4px}
+  .seek{
+    position:relative;height:3px;border-radius:3px;
+    background:var(--line);cursor:pointer;
+  }
+  .seek .fill{position:absolute;inset:0;width:0;border-radius:3px;
+    background:var(--signal);box-shadow:0 0 12px var(--signal-soft)}
+  .seek .head{position:absolute;top:50%;left:0;width:9px;height:9px;border-radius:50%;
+    background:var(--signal);transform:translate(-50%,-50%) scale(0);transition:transform .2s;
+    box-shadow:0 0 10px var(--signal)}
+  .track.playing .seek .head,.track:hover .seek .head{transform:translate(-50%,-50%) scale(1)}
+  .time{font-family:"Space Mono",monospace;font-size:.78rem;color:var(--dim);white-space:nowrap;letter-spacing:.02em}
+
+  /* ---------- prose / services ---------- */
+  .prose{max-width:60ch;color:var(--dim);font-size:1.05rem}
+  .prose b{color:var(--ice);font-weight:500}
+  .services{margin-top:26px;display:grid;gap:0;border-top:1px solid var(--line)}
+  .svc{display:grid;grid-template-columns:auto 1fr;gap:18px;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .svc .k{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.18em;color:var(--signal);text-transform:uppercase}
+  .svc .v{color:var(--ice);font-size:1rem}
+
+  /* ---------- packs ---------- */
+  .packs{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .pack{
+    display:flex;flex-direction:column;overflow:hidden;
+    border:1px solid var(--line);border-radius:16px;
+    background:linear-gradient(160deg,rgba(20,28,52,.5),rgba(10,15,30,.42));
+    transition:border-color .35s,transform .35s;
+  }
+  .pack:hover{border-color:#33406a;transform:translateY(-3px)}
+  .pack-cover{width:100%;height:190px;object-fit:cover;display:block;
+    border-bottom:1px solid var(--line);background:var(--nebula)}
+  .pack-cover.fallback{display:grid;place-items:center;color:var(--dim);
+    font-family:"Space Mono",monospace;font-size:.7rem;text-align:center;line-height:1.5}
+  .pack-body{padding:26px;display:flex;flex-direction:column;flex:1}
+  .pack h3{font-size:1.5rem;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+  .pack .sub{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--dim);margin-top:9px;line-height:1.5}
+  .pack p{color:var(--dim);margin-top:15px;font-size:.96rem;flex:1}
+  .specs{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+  .specs span{font-family:"Space Mono",monospace;font-size:.68rem;color:var(--ice);
+    padding:5px 10px;border:1px solid var(--line);border-radius:20px;background:rgba(0,0,0,.2)}
+  .specs span.noai{color:var(--signal);border-color:var(--signal-soft)}
+  .buy{
+    display:inline-flex;align-items:center;gap:10px;margin-top:22px;align-self:flex-start;
+    font-family:"Space Mono",monospace;font-size:.84rem;letter-spacing:.04em;
+    color:var(--amber);text-decoration:none;
+    padding:12px 20px;border:1px solid var(--amber);border-radius:30px;
+    background:var(--amber-soft);transition:background .3s,gap .25s;
+  }
+  .buy:hover{background:rgba(236,187,136,.24);gap:15px}
+  .buy .arr{transition:transform .25s}
+  .buy:hover .arr{transform:translateX(3px)}
+
+  /* ---------- contact ---------- */
+  .contact h2{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:500;letter-spacing:-.02em;max-width:18ch}
+  .contact p{color:var(--dim);margin-top:18px;max-width:44ch}
+  .mail{display:inline-block;margin-top:26px;font-size:1.25rem;color:var(--signal);
+    text-decoration:none;border-bottom:1px solid var(--signal-soft);padding-bottom:3px;transition:border-color .3s}
+  .mail:hover{border-color:var(--signal)}
+
+  footer{border-top:1px solid var(--line);padding:34px 0 60px;display:flex;
+    justify-content:space-between;flex-wrap:wrap;gap:14px;
+    font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;color:var(--dim)}
+  footer a{color:var(--dim);text-decoration:none}
+  footer a:hover{color:var(--signal)}
+
+  a:focus-visible,button:focus-visible,.seek:focus-visible{
+    outline:2px solid var(--signal);outline-offset:3px;border-radius:4px}
+
+  @media (max-width:640px){
+    header{padding:92px 0 70px}
+    .track{grid-template-columns:auto 1fr;gap:16px;padding:16px 16px}
+    .time{grid-column:2;justify-self:end;margin-top:-6px}
+    .packs{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div id="stars"><div class="layer s1"></div><div class="layer s2"></div><div class="layer s3"></div></div>
+
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">Henry Solberg · milkshakeiii</span>
+    <h1>Synth-driven music for <span class="glow">sci-fi worlds</span>.</h1>
+    <p class="lede">Original scores, loops, and atmospheres for <b>games, film, and tabletop</b> — built on melody and mood, not wallpaper. Trained composer, writes to brief, fast on revisions.</p>
+  </header>
+
+  <section aria-labelledby="reel">
+    <div class="seclabel"><span class="num">01</span><h2 id="reel">Selected work</h2></div>
+
+    <article class="track" data-src="audio/drive.mp3">
+      <button class="beacon" aria-label="Play Asteroid Run">
+        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
+      </button>
+      <div class="track-meta"><span class="eyebrow">Drive</span><div class="track-title">Asteroid Run</div></div>
+      <span class="time">––:–– / ––:––</span>
+      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
+    </article>
+
+    <article class="track" data-src="audio/retro.mp3">
+      <button class="beacon" aria-label="Play Pixel Frontier">
+        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
+      </button>
+      <div class="track-meta"><span class="eyebrow">Retro</span><div class="track-title">Pixel Frontier</div></div>
+      <span class="time">––:–– / ––:––</span>
+      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
+    </article>
+
+    <article class="track" data-src="audio/ambient.mp3">
+      <button class="beacon" aria-label="Play Deep Field">
+        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
+      </button>
+      <div class="track-meta"><span class="eyebrow">Ambient</span><div class="track-title">Deep Field</div></div>
+      <span class="time">––:–– / ––:––</span>
+      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
+    </article>
+
+    <article class="track" data-src="audio/hybrid.mp3">
+      <button class="beacon" aria-label="Play Slow Orbit">
+        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
+        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
+      </button>
+      <div class="track-meta"><span class="eyebrow">Hybrid</span><div class="track-title">Slow Orbit</div></div>
+      <span class="time">––:–– / ––:––</span>
+      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
+    </article>
+  </section>
+
+  <section aria-labelledby="about">
+    <div class="seclabel"><span class="num">02</span><h2 id="about">What I do</h2></div>
+    <p class="prose">I write synth-driven music for science-fiction settings — from <b>title themes and gameplay loops</b> to <b>tense exploration beds</b> and <b>end-credit cues</b>. The work leans atmospheric and melodic, designed to sit under a scene without disappearing into it.</p>
+    <div class="services">
+      <div class="svc"><span class="k">Games</span><span class="v">Scores, adaptive loops, and menu / event cues for indie and studio projects</span></div>
+      <div class="svc"><span class="k">Tabletop</span><span class="v">Ambient beds and scene music for TTRPG sessions and actual-play</span></div>
+      <div class="svc"><span class="k">Sync</span><span class="v">Licensing for film, trailers, and media — cleared and ready to drop in</span></div>
+      <div class="svc"><span class="k">Custom</span><span class="v">Original commissions written to your brief, with stems on request</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="pack">
+    <div class="seclabel"><span class="num">03</span><h2 id="pack">Available now</h2></div>
+    <div class="packs">
+
+      <div class="pack">
+        <img class="pack-cover" src="https://img.itch.zone/aW1nLzI4MDEyMzU2LnBuZw==/original/7pfX79.png" alt="Worldhome cover art"
+          onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;WORLDHOME&lt;br&gt;cover art&lt;/div&gt;'">
+        <div class="pack-body">
+          <h3>Worldhome</h3>
+          <div class="sub">Atmospheric Sci-Fi Music Pack</div>
+          <p>Eerie, expansive synth textures for sci-fi worlds — partly inspired by the lonely vastness of <em>Homeworld</em>. Six tracks for menus, events, suspense, and credits.</p>
+          <div class="specs">
+            <span>26 min</span><span>6 tracks</span><span>stems</span><span class="noai">no AI</span><span>$5+</span>
+          </div>
+          <a class="buy" href="https://milkshakeiii.itch.io/worldhome" target="_blank" rel="noopener">Get it on itch.io <span class="arr">→</span></a>
+        </div>
+      </div>
+
+      <div class="pack">
+        <img class="pack-cover" src="https://img.itch.zone/aW1nLzI4MDE0NjA3LmpwZw==/original/t3ymZ6.jpg" alt="Radiation cover art"
+          onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;RADIATION&lt;br&gt;cover art&lt;/div&gt;'">
+        <div class="pack-body">
+          <h3>Radiation</h3>
+          <div class="sub">Background Music for Otherworldly Atmosphere</div>
+          <p>Fantasy–sci-fi hybrid background music that glows. Six tracks moving from a peaceful intro through tension and immersion to an otherworldly groove.</p>
+          <div class="specs">
+            <span>24 min</span><span>6 tracks</span><span>stems</span><span class="noai">no AI</span><span>$5+</span>
+          </div>
+          <a class="buy" href="https://milkshakeiii.itch.io/radiation-background-music-for-otherworldly-atmosphere" target="_blank" rel="noopener">Get it on itch.io <span class="arr">→</span></a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="contact" aria-labelledby="contact">
+    <div class="seclabel"><span class="num">04</span><h2 id="contact" style="font-size:1.05rem">Get in touch</h2></div>
+    <h2>Available for sync licensing, custom scoring, and commissions.</h2>
+    <p>Tell me about your project — what it is, the feel you're after, and your timeline. I'll get back to you with options.</p>
+    <a class="mail" href="mailto:henry.j.solberg@gmail.com">henry.j.solberg@gmail.com</a>
+  </section>
+
+  <footer>
+    <span>© <span id="yr"></span> Henry Solberg</span>
+    <span><a href="https://milkshakeiii.itch.io" target="_blank" rel="noopener">itch.io / milkshakeiii</a></span>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // ---- starfield ----
+  function field(n,size,op){
+    var s=[];for(var i=0;i<n;i++){s.push((Math.random()*100).toFixed(2)+'vw '+(Math.random()*140).toFixed(2)+'vh 0 '+ (Math.random()*size+0.3).toFixed(1)+'px rgba(202,213,241,'+(Math.random()*op+0.15).toFixed(2)+')');}
+    return s.join(',');
+  }
+  function paint(el,n,size,op){var d=document.createElement('div');d.style.cssText='position:absolute;top:0;left:0;width:1px;height:1px;border-radius:50%;box-shadow:'+field(n,size,op);el.appendChild(d);}
+  paint(document.querySelector('.s1'),90,1.1,0.55);
+  paint(document.querySelector('.s2'),60,0.8,0.4);
+  paint(document.querySelector('.s3'),36,1.6,0.5);
+
+  // ---- players ----
+  var fmt=function(t){if(isNaN(t)||!isFinite(t))return'––:––';var m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+(s<10?'0':'')+s;};
+  var tracks=[].slice.call(document.querySelectorAll('.track'));
+  var audios=[];
+  tracks.forEach(function(tr){
+    var a=new Audio();a.preload='none';a.src=tr.dataset.src;audios.push(a);
+    var beacon=tr.querySelector('.beacon'),
+        time=tr.querySelector('.time'),
+        seek=tr.querySelector('.seek'),
+        fill=tr.querySelector('.fill');
+    var dur=NaN;
+    a.addEventListener('loadedmetadata',function(){dur=a.duration;time.textContent='0:00 / '+fmt(dur);});
+    a.addEventListener('timeupdate',function(){
+      if(dur){fill.style.width=(a.currentTime/dur*100)+'%';time.textContent=fmt(a.currentTime)+' / '+fmt(dur);}
+    });
+    a.addEventListener('ended',function(){tr.classList.remove('playing');fill.style.width='0%';});
+    beacon.addEventListener('click',function(){
+      if(a.paused){
+        audios.forEach(function(o,i){if(o!==a){o.pause();tracks[i].classList.remove('playing');}});
+        a.play();tr.classList.add('playing');
+      } else {a.pause();tr.classList.remove('playing');}
+    });
+    function seekTo(clientX){var r=seek.getBoundingClientRect();var p=Math.min(1,Math.max(0,(clientX-r.left)/r.width));if(dur){a.currentTime=p*dur;fill.style.width=(p*100)+'%';}}
+    seek.addEventListener('click',function(e){seekTo(e.clientX);});
+    seek.addEventListener('keydown',function(e){
+      if(!dur)return;
+      if(e.key==='ArrowRight'){a.currentTime=Math.min(dur,a.currentTime+5);e.preventDefault();}
+      if(e.key==='ArrowLeft'){a.currentTime=Math.max(0,a.currentTime-5);e.preventDefault();}
+    });
+  });
+
+  document.getElementById('yr').textContent=new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
