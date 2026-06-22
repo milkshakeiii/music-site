@@ -8,8 +8,10 @@ demo tracks in `audio/`. No build step.
 
 ## Hosting
 
-Served by GitHub Pages from the `main` branch root:
-**https://milkshakeiii.github.io/music-site**
+Served by GitHub Pages from the `main` branch root, at the custom domain
+**https://henryscifimusic.com** (the `CNAME` file binds it). DNS is managed in
+Google Cloud DNS under the GCP project `henryscifimusic`; the domain is
+registered via Cloud Domains / Squarespace.
 
 To preview locally, open `index.html` in a browser, or run a quick static
 server from this folder:
