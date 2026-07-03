@@ -147,7 +147,7 @@
     transition:border-color .35s,transform .35s;
   }
   .pack:hover{border-color:#33406a;transform:translateY(-3px)}
-  .pack-cover{width:100%;height:190px;object-fit:cover;display:block;
+  .pack-cover{width:100%;height:auto;aspect-ratio:1000/756;object-fit:cover;display:block;
     border-bottom:1px solid var(--line);background:var(--nebula)}
   .pack-cover.fallback{display:grid;place-items:center;color:var(--dim);
     font-family:"Space Mono",monospace;font-size:.7rem;text-align:center;line-height:1.5}
@@ -269,7 +269,7 @@
     <div class="packs">
 
       <div class="pack">
-        <img class="pack-cover" src="https://img.itch.zone/aW1nLzI4MDEyMzU2LnBuZw==/original/7pfX79.png" alt="Worldhome cover art"
+        <img class="pack-cover" src="img/worldhome.jpg" alt="Worldhome cover art" width="1000" height="756" loading="lazy"
           onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;WORLDHOME&lt;br&gt;cover art&lt;/div&gt;'">
         <div class="pack-body">
           <h3>Worldhome</h3>
@@ -283,7 +283,7 @@
       </div>
 
       <div class="pack">
-        <img class="pack-cover" src="https://img.itch.zone/aW1nLzI4MDE0NjA3LmpwZw==/original/t3ymZ6.jpg" alt="Radiation cover art"
+        <img class="pack-cover" src="img/radiation.jpg" alt="Radiation cover art" width="1000" height="756" loading="lazy"
           onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;RADIATION&lt;br&gt;cover art&lt;/div&gt;'">
         <div class="pack-body">
           <h3>Radiation</h3>
