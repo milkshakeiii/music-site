@@ -170,6 +170,16 @@
   .buy:hover{background:rgba(236,187,136,.24);gap:15px}
   .buy .arr{transition:transform .25s}
   .buy:hover .arr{transform:translateX(3px)}
+  .packs.collapsed .pack.older{display:none}
+  .more-toggle{
+    display:block;margin:26px auto 0;cursor:pointer;
+    font-family:"Space Mono",monospace;font-size:.8rem;letter-spacing:.06em;
+    color:var(--signal);background:transparent;
+    padding:11px 22px;border:1px solid var(--signal-soft);border-radius:30px;
+    transition:background .3s,border-color .3s;
+  }
+  .more-toggle:hover{background:var(--signal-soft);border-color:var(--signal)}
+  .more-toggle[hidden]{display:none}
 
   /* ---------- contact ---------- */
   .contact h2{font-size:clamp(1.6rem,4vw,2.3rem);font-weight:500;letter-spacing:-.02em;max-width:18ch}
@@ -296,7 +306,7 @@
         </div>
       </div>
 
-      <div class="pack">
+      <div class="pack older">
         <img class="pack-cover" src="img/worldhome.jpg" alt="Worldhome cover art" width="1000" height="756" loading="lazy"
           onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;WORLDHOME&lt;br&gt;cover art&lt;/div&gt;'">
         <div class="pack-body">
@@ -310,7 +320,7 @@
         </div>
       </div>
 
-      <div class="pack">
+      <div class="pack older">
         <img class="pack-cover" src="img/radiation.jpg" alt="Radiation cover art" width="1000" height="756" loading="lazy"
           onerror="this.outerHTML='&lt;div class=&quot;pack-cover fallback&quot;&gt;RADIATION&lt;br&gt;cover art&lt;/div&gt;'">
         <div class="pack-body">
@@ -325,6 +335,7 @@
       </div>
 
     </div>
+    <button class="more-toggle" type="button" aria-expanded="false" hidden>Show more</button>
   </section>
 
   <section class="contact" aria-labelledby="contact">
@@ -382,6 +393,15 @@
       if(e.key==='ArrowRight'){a.currentTime=Math.min(dur,a.currentTime+5);e.preventDefault();}
       if(e.key==='ArrowLeft'){a.currentTime=Math.max(0,a.currentTime-5);e.preventDefault();}
     });
+  });
+
+  // ---- older packs behind "Show more" (all stay visible without JS) ----
+  var packs=document.querySelector('.packs'),more=document.querySelector('.more-toggle');
+  packs.classList.add('collapsed');more.hidden=false;
+  more.addEventListener('click',function(){
+    var open=packs.classList.toggle('collapsed')===false;
+    more.setAttribute('aria-expanded',open);
+    more.textContent=open?'Show less':'Show more';
   });
 
   document.getElementById('yr').textContent=new Date().getFullYear();
