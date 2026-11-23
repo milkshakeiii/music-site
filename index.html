@@ -7,7 +7,7 @@
 <meta name="description" content="Original synth-driven scores, loops, and atmospheres for games, film, and tabletop. Available for sync licensing and custom work." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet" />
 <style>
   :root{
     --void:#05060b;
@@ -20,6 +20,7 @@
     --signal-soft:rgba(118,224,201,.16);
     --amber:#ecbb88;
     --amber-soft:rgba(236,187,136,.14);
+    --gold:#f2c879;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -82,53 +83,151 @@
   .seclabel .num{font-family:"Space Mono",monospace;color:var(--dim);font-size:.72rem;letter-spacing:.2em}
   .seclabel h2{font-size:1.05rem;font-weight:500;letter-spacing:.04em;color:var(--ice)}
 
-  /* ---------- players ---------- */
-  .track{
-    display:grid;
-    grid-template-columns:auto 1fr auto;
-    align-items:center;gap:22px;
-    padding:20px 22px;margin-bottom:14px;
-    background:linear-gradient(180deg,rgba(20,28,52,.42),rgba(10,15,30,.42));
-    border:1px solid var(--line);border-radius:14px;
-    transition:border-color .35s,background .35s;
+  /* ---------- many worlds: intro ---------- */
+  .mw-intro{display:flex;align-items:center;gap:26px;margin-bottom:34px}
+  .mw-cover{display:block;flex:none;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line);box-shadow:0 14px 40px rgba(0,0,0,.5);transition:border-color .3s,transform .3s}
+  .mw-cover:hover{border-color:#33406a;transform:translateY(-2px)}
+  .mw-cover img{display:block;width:118px;height:118px}
+  .mw-title{font-size:clamp(1.45rem,4vw,2.1rem);font-weight:400;letter-spacing:.3em;
+    text-transform:uppercase;color:#fff;line-height:1.05}
+  .mw-sub{margin-top:10px;color:var(--dim);max-width:46ch}
+  .mw-sub em{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:500;font-size:1.22em;color:var(--gold)}
+  .mw-sub b{color:var(--ice);font-weight:500}
+
+  /* ---------- many worlds: the strip ---------- */
+  .worlds{display:flex;gap:4px;height:500px}
+  .world{
+    position:relative;flex:1 1 0;min-width:0;overflow:hidden;
+    border:1px solid var(--line);border-radius:12px;background:#070a14;
+    transition:flex-grow .7s cubic-bezier(.2,.8,.2,1),border-color .4s;
   }
-  .track:hover{border-color:#33406a}
-  .track.playing{border-color:var(--signal);background:linear-gradient(180deg,rgba(118,224,201,.07),rgba(10,15,30,.5))}
+  .world img{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:var(--pos,50% 50%);
+    filter:saturate(.85) brightness(.78);
+    transition:filter .6s,transform .8s cubic-bezier(.2,.8,.2,1);
+  }
+  .has-active .world:not(.active) img{filter:saturate(.55) brightness(.5)}
+  .world.active{flex-grow:7;border-color:rgba(118,224,201,.5)}
+  /* lift the art so its subject sits above the info panel (the top is mostly ink wash) */
+  .world.active img{filter:none;transform:translateY(-70px)}
+  /* legibility wash for the vertical labels */
+  .world::after{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(5,6,11,.45) 0%,rgba(5,6,11,0) 22%,rgba(5,6,11,0) 46%,rgba(5,6,11,.86) 100%);
+    transition:opacity .6s;
+  }
+  .world.active::after{opacity:.55}
+  /* rim light: pulses with the music where the browser allows analysis */
+  .world::before{
+    content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(118,224,201,.65),inset 0 0 80px rgba(118,224,201,.3);
+    opacity:0;transition:opacity .5s;
+  }
+  .world.playing::before{opacity:.5}
+  .live .world.playing::before{opacity:calc(.12 + var(--lvl,0) * 1.5);transition:none}
+
+  .world-hit{
+    position:absolute;inset:0;z-index:3;width:100%;padding:0;
+    background:transparent;border:0;cursor:pointer;color:var(--ice);font:inherit;
+  }
+  .world.active .world-hit{display:none}
+  .world-hit:focus-visible{outline:2px solid var(--signal);outline-offset:-5px;border-radius:11px}
+  .world-tab{
+    position:absolute;left:12px;bottom:22px;
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+    white-space:nowrap;text-shadow:0 1px 10px rgba(0,0,0,.95);transition:color .3s;
+  }
+  .world-tab .n{color:var(--signal);margin-inline-end:1em}
+  @media (hover:hover){
+    .worlds:not(.has-active) .world:hover{flex-grow:1.6}
+    .world:not(.active):hover img{filter:saturate(1) brightness(.95)}
+    .world:not(.active):hover{border-color:#3a4a78}
+    .world:not(.active):hover .world-tab{color:#fff}
+  }
+
+  /* info + player, shown only on the open world */
+  .world-info{
+    position:absolute;left:0;right:0;bottom:0;z-index:4;
+    padding:64px 26px 22px;
+    background:linear-gradient(180deg,rgba(5,6,11,0),rgba(5,6,11,.78) 36%,rgba(5,6,11,.95));
+    opacity:0;visibility:hidden;transform:translateY(10px);
+    transition:opacity .15s,transform .15s,visibility 0s .15s;
+  }
+  .world.active .world-info{
+    opacity:1;visibility:visible;transform:none;
+    transition:opacity .5s .4s,transform .6s .4s,visibility 0s 0s;
+  }
+  .world-info h3{font-size:1.55rem;font-weight:500;letter-spacing:-.01em;line-height:1.12;
+    color:#fff;margin-top:8px;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+
+  .player{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-top:18px}
+  .pl-main{min-width:0}
+  .now{display:flex;align-items:center;gap:10px;min-width:0;font-size:1rem;color:#fff}
+  .now-title{line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .eq{display:inline-flex;align-items:flex-end;gap:2px;height:14px;flex:none}
+  .eq i{display:block;width:3px;height:100%;border-radius:1px;background:var(--signal);
+    transform-origin:50% 100%;transform:scaleY(.16);transition:transform .35s}
+  .player.playing:not(.live) .eq i{animation:eq 1.2s ease-in-out infinite alternate}
+  .player.playing:not(.live) .eq i:nth-child(2){animation-duration:.9s;animation-delay:-.4s}
+  .player.playing:not(.live) .eq i:nth-child(3){animation-duration:1.5s;animation-delay:-.7s}
+  .player.playing:not(.live) .eq i:nth-child(4){animation-duration:1.05s;animation-delay:-.2s}
+  .player.playing:not(.live) .eq i:nth-child(5){animation-duration:1.35s;animation-delay:-1s}
+  .player.live .eq i{transition:none}
+  @keyframes eq{0%{transform:scaleY(.2)}100%{transform:scaleY(1)}}
+  .pl-bar{display:flex;align-items:center;gap:14px;margin-top:10px}
+  .pl-bar .seek{flex:1}
 
   .beacon{
     width:48px;height:48px;flex:none;border-radius:50%;
-    border:1px solid var(--signal);background:transparent;
+    border:1px solid var(--signal);background:rgba(5,6,11,.35);
     color:var(--signal);cursor:pointer;display:grid;place-items:center;
     transition:background .3s,transform .15s;position:relative;
   }
   .beacon svg{width:16px;height:16px;display:block}
   .beacon .pause-i{display:none}
-  .track.playing .beacon{background:var(--signal-soft)}
-  .track.playing .beacon .play-i{display:none}
-  .track.playing .beacon .pause-i{display:block}
-  .track.playing .beacon::after{
+  .player.playing .beacon{background:var(--signal-soft)}
+  .player.playing .beacon .play-i{display:none}
+  .player.playing .beacon .pause-i{display:block}
+  .player.playing .beacon::after{
     content:"";position:absolute;inset:-1px;border-radius:50%;
     border:1px solid var(--signal);animation:ping 2.4s ease-out infinite;
   }
+  .player.loading .beacon::after{
+    content:"";position:absolute;inset:-5px;border-radius:50%;
+    border:1px solid transparent;border-top-color:var(--signal);border-right-color:var(--signal-soft);
+    animation:spin .9s linear infinite;
+  }
   @keyframes ping{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .beacon:active{transform:scale(.93)}
 
-  .track-meta{min-width:0}
-  .track-meta .eyebrow{display:block;margin-bottom:5px}
-  .track-title{font-size:1.18rem;font-weight:500;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  .scrub{grid-column:1 / -1;margin-top:4px}
   .seek{
     position:relative;height:3px;border-radius:3px;
-    background:var(--line);cursor:pointer;
+    background:rgba(202,213,241,.18);cursor:pointer;touch-action:none;
   }
-  .seek .fill{position:absolute;inset:0;width:0;border-radius:3px;
+  .seek::before{content:"";position:absolute;left:0;right:0;top:-9px;bottom:-9px}
+  .seek .fill{position:absolute;top:0;bottom:0;left:0;width:0;border-radius:3px;
     background:var(--signal);box-shadow:0 0 12px var(--signal-soft)}
   .seek .head{position:absolute;top:50%;left:0;width:9px;height:9px;border-radius:50%;
     background:var(--signal);transform:translate(-50%,-50%) scale(0);transition:transform .2s;
     box-shadow:0 0 10px var(--signal)}
-  .track.playing .seek .head,.track:hover .seek .head{transform:translate(-50%,-50%) scale(1)}
-  .time{font-family:"Space Mono",monospace;font-size:.78rem;color:var(--dim);white-space:nowrap;letter-spacing:.02em}
+  .player.playing .seek .head,.seek:hover .head,.seek:focus-visible .head{transform:translate(-50%,-50%) scale(1)}
+  .time{font-family:"Space Mono",monospace;font-size:.74rem;color:var(--dim);white-space:nowrap;letter-spacing:.02em}
+
+  .world-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px}
+  .world-links a{
+    font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.03em;
+    color:var(--amber);text-decoration:none;
+    border-bottom:1px solid rgba(236,187,136,.3);padding-bottom:2px;transition:border-color .3s,color .3s;
+  }
+  .world-links a:hover{border-color:var(--amber)}
+  .world-links a.alt{color:var(--ice);border-color:rgba(202,213,241,.22)}
+  .world-links a.alt:hover{border-color:var(--ice)}
+  .mw-noscript{margin-top:18px;color:var(--dim);font-size:.95rem}
+  .mw-noscript a{color:var(--signal)}
 
   /* ---------- prose / services ---------- */
   .prose{max-width:60ch;color:var(--dim);font-size:1.05rem}
@@ -197,14 +296,30 @@
   a:focus-visible,button:focus-visible,.seek:focus-visible{
     outline:2px solid var(--signal);outline-offset:3px;border-radius:4px}
 
+  @media (max-width:860px){
+    .world.active{flex-grow:8.5}
+    .world-info .eyebrow{letter-spacing:.18em}
+  }
   @media (max-width:640px){
     header{padding:92px 0 70px}
-    .track{grid-template-columns:auto 1fr;gap:16px;padding:16px 16px}
-    .time{grid-column:2;justify-self:end;margin-top:-6px}
     .packs{grid-template-columns:1fr}
+
+    .mw-intro{gap:18px;align-items:flex-start}
+    .mw-cover img{width:84px;height:84px}
+
+    .worlds{flex-direction:column;height:auto}
+    .world{flex:none;height:66px;transition:height .65s cubic-bezier(.2,.8,.2,1),border-color .4s}
+    .world.active{height:540px}
+    .world img{object-position:var(--mpos,50% 50%)}
+    .world::after{background:linear-gradient(90deg,rgba(5,6,11,.82) 0%,rgba(5,6,11,.3) 62%,rgba(5,6,11,.55) 100%)}
+    .world.active::after{opacity:0}
+    .world-tab{writing-mode:horizontal-tb;left:18px;bottom:auto;top:50%;transform:translateY(-50%);letter-spacing:.14em}
+    .world-info{padding:60px 18px 18px}
+    .world-info h3{font-size:1.3rem}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;scroll-behavior:auto}
+    .world,.world img,.world-info,.world::after{transition:none!important}
   }
 </style>
 </head>
@@ -222,45 +337,146 @@
   <section aria-labelledby="reel">
     <div class="seclabel"><span class="num">01</span><h2 id="reel">Selected work</h2></div>
 
-    <article class="track" data-src="audio/ambient.mp3">
-      <button class="beacon" aria-label="Play Deep Field">
-        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
-      </button>
-      <div class="track-meta"><span class="eyebrow">Ambient</span><div class="track-title">Deep Field</div></div>
-      <span class="time">––:–– / ––:––</span>
-      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
-    </article>
+    <div class="mw-intro">
+      <a class="mw-cover" href="https://henrysolberg.bandcamp.com" target="_blank" rel="noopener" aria-label="Henry Solberg on Bandcamp">
+        <img src="img/manyworlds.jpg" alt="Many Worlds cover: a pixel-art train crossing a starry viaduct past each of the seven worlds" width="560" height="560">
+      </a>
+      <div>
+        <h3 class="mw-title">Many Worlds</h3>
+        <p class="mw-sub"><em>Seven worlds</em> brought to life in music, demonstrating a range of atmospheric sci-fi and fantasy music. <b>Pick one to listen.</b></p>
+      </div>
+    </div>
 
-    <article class="track" data-src="audio/spacejazz.mp3">
-      <button class="beacon" aria-label="Play Space Jazz">
-        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
-      </button>
-      <div class="track-meta"><span class="eyebrow">Groove</span><div class="track-title">Space Jazz</div></div>
-      <span class="time">––:–– / ––:––</span>
-      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
-    </article>
+    <div class="worlds">
 
-    <article class="track" data-src="audio/retro.mp3">
-      <button class="beacon" aria-label="Play Pixel Frontier">
-        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
-      </button>
-      <div class="track-meta"><span class="eyebrow">Retro</span><div class="track-title">Pixel Frontier</div></div>
-      <span class="time">––:–– / ––:––</span>
-      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
-    </article>
+      <article class="world" style="--pos:66% 50%;--mpos:50% 42%"
+        data-src="audio/worlds/marvelous.mp3" data-dur="289" data-track="The Corner of Maple St. and the Future">
+        <img src="img/worlds/marvelous.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play The Marvelous Electrical World of Tomorrow">
+          <span class="world-tab" aria-hidden="true"><span class="n">01</span>Marvelous Electrical World</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 29 min</span>
+          <h3>The Marvelous Electrical World of Tomorrow</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/the-marvelous-electrical-world-of-tomorrow" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+          </div>
+        </div>
+      </article>
 
-    <article class="track" data-src="audio/hybrid.mp3">
-      <button class="beacon" aria-label="Play Slow Orbit">
-        <svg class="play-i" viewBox="0 0 16 16" fill="currentColor"><path d="M3 1.5v13l11-6.5z"/></svg>
-        <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
-      </button>
-      <div class="track-meta"><span class="eyebrow">Hybrid</span><div class="track-title">Slow Orbit</div></div>
-      <span class="time">––:–– / ––:––</span>
-      <div class="scrub"><div class="seek" tabindex="0" role="slider" aria-label="Seek"><div class="fill"></div><div class="head"></div></div></div>
-    </article>
+      <article class="world" style="--pos:50% 50%;--mpos:50% 50%"
+        data-src="audio/worlds/abstract-objects.mp3" data-dur="350" data-track="Alpha">
+        <img src="img/worlds/abstract-objects.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play Abstract Objects">
+          <span class="world-tab" aria-hidden="true"><span class="n">02</span>Abstract Objects</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 33 min</span>
+          <h3>Abstract Objects</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/abstract-objects" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="world" style="--pos:40% 50%;--mpos:50% 45%"
+        data-src="audio/worlds/stellar-cartography.mp3" data-dur="417" data-track="Star 2 Object 25">
+        <img src="img/worlds/stellar-cartography.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play Stellar Cartography">
+          <span class="world-tab" aria-hidden="true"><span class="n">03</span>Stellar Cartography</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">7 tracks · 44 min</span>
+          <h3>Stellar Cartography</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/stellar-cartography" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+            <a class="alt" href="https://milkshakeiii.itch.io/stellar-cartography" target="_blank" rel="noopener">License on itch.io ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="world" style="--pos:50% 50%;--mpos:50% 62%"
+        data-src="audio/worlds/virtual-history.mp3" data-dur="273" data-track="Golden Age">
+        <img src="img/worlds/virtual-history.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play Virtual History">
+          <span class="world-tab" aria-hidden="true"><span class="n">04</span>Virtual History</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 32 min</span>
+          <h3>Virtual History</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/virtual-history" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+            <a class="alt" href="https://milkshakeiii.itch.io/virtual-history" target="_blank" rel="noopener">License on itch.io ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="world" style="--pos:50% 50%;--mpos:50% 62%"
+        data-src="audio/worlds/enchanted-forest.mp3" data-dur="352" data-track="The Underbrush">
+        <img src="img/worlds/enchanted-forest.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play The Enchanted Forest of Naibihpma">
+          <span class="world-tab" aria-hidden="true"><span class="n">05</span>Enchanted Forest</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 29 min</span>
+          <h3>The Enchanted Forest of Naibihpma</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/the-enchanted-forest-of-naibihpma" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="world" style="--pos:45% 50%;--mpos:50% 50%"
+        data-src="audio/worlds/radiation.mp3" data-dur="241" data-track="Ultraviolet">
+        <img src="img/worlds/radiation.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play Background Music Radiation">
+          <span class="world-tab" aria-hidden="true"><span class="n">06</span>Background Radiation</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 24 min</span>
+          <h3>Background Music Radiation</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/background-music-radiation" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+            <a class="alt" href="https://milkshakeiii.itch.io/radiation-background-music-for-otherworldly-atmosphere" target="_blank" rel="noopener">License on itch.io ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="world" style="--pos:50% 50%;--mpos:50% 55%"
+        data-src="audio/worlds/lost-wing.mp3" data-dur="239" data-track="Level 1">
+        <img src="img/worlds/lost-wing.jpg" alt="" width="1024" height="1024" loading="lazy" decoding="async">
+        <button class="world-hit" type="button" aria-label="Play Lost Wing">
+          <span class="world-tab" aria-hidden="true"><span class="n">07</span>Lost Wing</span>
+        </button>
+        <div class="world-info">
+          <span class="eyebrow">6 tracks · 25 min</span>
+          <h3>Lost Wing</h3>
+          <div class="world-links">
+            <a href="https://henrysolberg.bandcamp.com/album/lost-wing" target="_blank" rel="noopener">Full album on Bandcamp ↗</a>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <noscript><p class="mw-noscript">Listen to all seven worlds on <a href="https://henrysolberg.bandcamp.com">Bandcamp</a>.</p></noscript>
+
+    <!-- one shared player; the script moves it into whichever world is open -->
+    <div hidden>
+      <div class="player" id="player">
+        <button class="beacon" type="button" aria-label="Play">
+          <svg class="play-i" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 1.5v13l11-6.5z"/></svg>
+          <svg class="pause-i" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2.5" y="1.5" width="4" height="13"/><rect x="9.5" y="1.5" width="4" height="13"/></svg>
+        </button>
+        <div class="pl-main">
+          <div class="now"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="now-title"></span></div>
+          <div class="pl-bar">
+            <div class="seek" tabindex="0" role="slider" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div><div class="head"></div></div>
+            <span class="time">––:–– / ––:––</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="about">
@@ -347,7 +563,7 @@
 
   <footer>
     <span>© <span id="yr"></span> Henry Solberg</span>
-    <span><a href="https://milkshakeiii.itch.io" target="_blank" rel="noopener">itch.io / milkshakeiii</a></span>
+    <span><a href="https://henrysolberg.bandcamp.com" target="_blank" rel="noopener">bandcamp / henrysolberg</a> · <a href="https://milkshakeiii.itch.io" target="_blank" rel="noopener">itch.io / milkshakeiii</a></span>
   </footer>
 
 </div>
@@ -364,36 +580,159 @@
   paint(document.querySelector('.s2'),60,0.8,0.4);
   paint(document.querySelector('.s3'),36,1.6,0.5);
 
-  // ---- players ----
+  // ---- Many Worlds: pick a world, hear it ----
+  var strip=document.querySelector('.worlds');
+  var worlds=[].slice.call(strip.querySelectorAll('.world'));
+  var player=document.getElementById('player');
+  var beacon=player.querySelector('.beacon'),
+      seek=player.querySelector('.seek'),
+      fill=player.querySelector('.fill'),
+      head=player.querySelector('.head'),
+      time=player.querySelector('.time'),
+      nowTitle=player.querySelector('.now-title'),
+      bars=[].slice.call(player.querySelectorAll('.eq i'));
+  var audio=new Audio();audio.preload='none';
+  var cur=-1,dur=NaN;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var narrow=window.matchMedia('(max-width: 640px)');
+
   var fmt=function(t){if(isNaN(t)||!isFinite(t))return'––:––';var m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+(s<10?'0':'')+s;};
-  var tracks=[].slice.call(document.querySelectorAll('.track'));
-  var audios=[];
-  tracks.forEach(function(tr){
-    var a=new Audio();a.preload='none';a.src=tr.dataset.src;audios.push(a);
-    var beacon=tr.querySelector('.beacon'),
-        time=tr.querySelector('.time'),
-        seek=tr.querySelector('.seek'),
-        fill=tr.querySelector('.fill');
-    var dur=NaN;
-    a.addEventListener('loadedmetadata',function(){dur=a.duration;time.textContent='0:00 / '+fmt(dur);});
-    a.addEventListener('timeupdate',function(){
-      if(dur){fill.style.width=(a.currentTime/dur*100)+'%';time.textContent=fmt(a.currentTime)+' / '+fmt(dur);}
-    });
-    a.addEventListener('ended',function(){tr.classList.remove('playing');fill.style.width='0%';});
-    beacon.addEventListener('click',function(){
-      if(a.paused){
-        audios.forEach(function(o,i){if(o!==a){o.pause();tracks[i].classList.remove('playing');}});
-        a.play();tr.classList.add('playing');
-      } else {a.pause();tr.classList.remove('playing');}
-    });
-    function seekTo(clientX){var r=seek.getBoundingClientRect();var p=Math.min(1,Math.max(0,(clientX-r.left)/r.width));if(dur){a.currentTime=p*dur;fill.style.width=(p*100)+'%';}}
-    seek.addEventListener('click',function(e){seekTo(e.clientX);});
-    seek.addEventListener('keydown',function(e){
-      if(!dur)return;
-      if(e.key==='ArrowRight'){a.currentTime=Math.min(dur,a.currentTime+5);e.preventDefault();}
-      if(e.key==='ArrowLeft'){a.currentTime=Math.max(0,a.currentTime-5);e.preventDefault();}
+  function title(i){return worlds[i].querySelector('h3').textContent;}
+  function setProgress(p){
+    p=Math.min(1,Math.max(0,p||0));
+    fill.style.width=(p*100)+'%';head.style.left=(p*100)+'%';
+    seek.setAttribute('aria-valuenow',Math.round(p*100));
+  }
+  function showTime(){
+    time.textContent=fmt(audio.currentTime)+' / '+fmt(dur);
+    seek.setAttribute('aria-valuetext',fmt(audio.currentTime)+' of '+fmt(dur));
+  }
+
+  function select(i,play){
+    if(i!==cur){
+      var w=worlds[i];
+      setPlaying(false);
+      worlds.forEach(function(o,j){o.classList.toggle('active',j===i);});
+      strip.classList.add('has-active');
+      cur=i;
+      w.querySelector('.world-info').insertBefore(player,w.querySelector('.world-links'));
+      nowTitle.textContent=w.dataset.track;
+      audio.src=w.dataset.src;
+      dur=+w.dataset.dur;setProgress(0);showTime();
+      setSession();
+      if(narrow.matches){setTimeout(function(){w.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});},reduce?0:680);}
+    }
+    if(play)start();
+  }
+  function start(){
+    graph();
+    player.classList.add('loading');
+    var p=audio.play();
+    if(p&&p.catch)p.catch(function(){player.classList.remove('loading');});
+  }
+  function setPlaying(on){
+    if(cur<0)return;
+    worlds[cur].classList.toggle('playing',on);
+    player.classList.toggle('playing',on);
+    beacon.setAttribute('aria-label',(on?'Pause ':'Play ')+title(cur));
+    if('mediaSession' in navigator)navigator.mediaSession.playbackState=on?'playing':'paused';
+    if(on)loop();else stopLoop();
+  }
+
+  worlds.forEach(function(w,i){
+    w.querySelector('.world-hit').addEventListener('click',function(){
+      select(i,true);
+      beacon.focus({preventScroll:true});
     });
   });
+  beacon.addEventListener('click',function(){if(audio.paused)start();else audio.pause();});
+
+  audio.addEventListener('playing',function(){player.classList.remove('loading');setPlaying(true);});
+  audio.addEventListener('waiting',function(){player.classList.add('loading');});
+  audio.addEventListener('canplay',function(){if(audio.paused)player.classList.remove('loading');});
+  audio.addEventListener('pause',function(){player.classList.remove('loading');setPlaying(false);});
+  audio.addEventListener('loadedmetadata',function(){dur=audio.duration;showTime();});
+  audio.addEventListener('timeupdate',function(){if(dur)setProgress(audio.currentTime/dur);showTime();});
+  audio.addEventListener('ended',function(){select((cur+1)%worlds.length,true);});
+
+  // seek: click, drag, keys
+  var dragging=false;
+  function seekAt(x){
+    var r=seek.getBoundingClientRect(),p=Math.min(1,Math.max(0,(x-r.left)/r.width));
+    if(dur){audio.currentTime=p*dur;setProgress(p);showTime();}
+  }
+  seek.addEventListener('pointerdown',function(e){dragging=true;try{seek.setPointerCapture(e.pointerId);}catch(_){}seekAt(e.clientX);});
+  seek.addEventListener('pointermove',function(e){if(dragging)seekAt(e.clientX);});
+  seek.addEventListener('pointerup',function(){dragging=false;});
+  seek.addEventListener('pointercancel',function(){dragging=false;});
+  seek.addEventListener('keydown',function(e){
+    if(!dur)return;
+    var t=null;
+    if(e.key==='ArrowRight'||e.key==='ArrowUp')t=Math.min(dur,audio.currentTime+5);
+    if(e.key==='ArrowLeft'||e.key==='ArrowDown')t=Math.max(0,audio.currentTime-5);
+    if(e.key==='Home')t=0;
+    if(e.key==='End')t=Math.max(0,dur-1);
+    if(t!==null){audio.currentTime=t;setProgress(t/dur);showTime();e.preventDefault();}
+  });
+
+  // audio-reactive rim light + equalizer (desktop over http only, so phones keep
+  // playing with the screen locked and file:// previews are never silenced)
+  var actx=null,analyser=null,bins=null,raf=0,lvl=0;
+  var BANDS=[[1,3],[3,7],[7,15],[15,32],[32,70]];
+  function graph(){
+    if(actx){if(actx.state==='suspended')actx.resume();return;}
+    if(reduce||!/^https?:$/.test(location.protocol))return;
+    if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches)return;
+    var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    try{
+      actx=new AC();
+      var src=actx.createMediaElementSource(audio);
+      analyser=actx.createAnalyser();analyser.fftSize=512;analyser.smoothingTimeConstant=.82;
+      src.connect(analyser);analyser.connect(actx.destination);
+      bins=new Uint8Array(analyser.frequencyBinCount);
+      strip.classList.add('live');player.classList.add('live');
+    }catch(e){actx=null;analyser=null;}
+  }
+  function loop(){
+    if(!analyser||raf)return;
+    var tick=function(){
+      raf=requestAnimationFrame(tick);
+      analyser.getByteFrequencyData(bins);
+      var total=0;
+      for(var b=0;b<BANDS.length;b++){
+        var sum=0,lo=BANDS[b][0],hi=BANDS[b][1];
+        for(var k=lo;k<hi;k++)sum+=bins[k];
+        var v=sum/((hi-lo)*255);total+=v;
+        bars[b].style.transform='scaleY('+(0.14+0.86*Math.min(1,v*1.25)).toFixed(3)+')';
+      }
+      lvl+=((total/BANDS.length)-lvl)*0.18;
+      worlds[cur].style.setProperty('--lvl',lvl.toFixed(3));
+    };
+    tick();
+  }
+  function stopLoop(){
+    if(raf){cancelAnimationFrame(raf);raf=0;}
+    bars.forEach(function(b){b.style.transform='';});
+    worlds.forEach(function(w){w.style.removeProperty('--lvl');});
+  }
+
+  // lock screen / media keys
+  function setSession(){
+    if(!('mediaSession' in navigator)||!window.MediaMetadata)return;
+    var w=worlds[cur],img=w.querySelector('img');
+    try{navigator.mediaSession.metadata=new MediaMetadata({
+      title:w.dataset.track,artist:'Henry Solberg',album:title(cur),
+      artwork:[{src:new URL(img.getAttribute('src'),location.href).href,sizes:'1024x1024',type:'image/jpeg'}]
+    });}catch(e){}
+  }
+  if('mediaSession' in navigator){
+    var ms=navigator.mediaSession,n=worlds.length;
+    [['play',function(){if(cur<0)select(0,true);else start();}],
+     ['pause',function(){audio.pause();}],
+     ['nexttrack',function(){select((cur+1)%n,true);}],
+     ['previoustrack',function(){select((cur-1+n)%n,true);}]
+    ].forEach(function(h){try{ms.setActionHandler(h[0],h[1]);}catch(e){}});
+  }
 
   // ---- older packs behind "Show more" (all stay visible without JS) ----
   var packs=document.querySelector('.packs'),more=document.querySelector('.more-toggle');
